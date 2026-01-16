@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<div class="app-container">
+  <header>
+    <h1>Hola, IGNACIO</h1>
+    <p>Control de Préstamos Profesional</p>
+  </header>
+
+  <div class="resumen-principal">
+    <div class="card-resumen blue">
+      <span>CAPITAL PRESTADO</span>
+      <h2 id="total-capital">$0</h2>
+    </div>
+    <div class="card-resumen orange">
+      <span>GANANCIA (INTERÉS)</span>
+      <h2 id="total-interes">$0</h2>
+    </div>
+  </div>
+
+  <section class="admin-section">
+    <h3>📝 Nuevo Perfil de Cliente</h3>
+    <input type="text" id="nombre" placeholder="Nombre y Apellido">
+    <input type="text" id="dni" placeholder="N° Documento">
+    <input type="text" id="domicilio" placeholder="Dirección / Domicilio">
+    <input type="text" id="telefono" placeholder="Teléfono">
+    <input type="number" id="monto" placeholder="Monto Prestado (Capital)">
+    <input type="number" id="interes_porcentaje" placeholder="% Interés (ej: 30)" value="30">
+    <input type="number" id="cuotas" placeholder="Cantidad de días (cuotas)">
+    <input type="date" id="fecha_inicio">
+    <button class="btn-main" onclick="crearPrestamo()">+ GENERAR PERFIL</button>
+  </section>
+
+  <section>
+    <h3>👥 Clientes Activos</h3>
+    <div id="lista-clientes"></div>
+  </section>
+</div>
+
+<div id="modal-glosario" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModal()">&times;</span>
+    <h2 id="modal-cliente-nombre">Detalle</h2>
+    <div id="info-cliente-detalle" class="info-extra"></div>
+    <div class="cobro-hoy">
+      <p>Hoy es: <strong>15/1/2026</strong></p>
+      <h3 style="color: #ff4d4d;">DEBE PAGAR HOY: <span id="cuota-hoy">$0</span></h3>
+    </div>
+    <div class="pago-box">
+      <input type="number" id="monto-pago" placeholder="Monto que recibe hoy">
+      <button onclick="registrarPago()">ANOTAR EN GLOSARIO</button>
+    </div>
+    <h4>Historial de Pagos:</h4>
+    <ul id="historial-pagos"></ul>
+    <div style="margin-top: 30px; border-top: 1px solid #334155; padding-top: 15px;">
+      <button onclick="eliminarPerfil()" class="btn-eliminar">❌ ELIMINAR PERFIL COMPLETO</button>
+    </div>
+  </div>
+</div>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
