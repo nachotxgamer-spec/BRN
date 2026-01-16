@@ -12,7 +12,6 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let clienteActivo = "";
 
-// CREAR PERFIL
 window.crearPrestamo = function() {
   const nombre = document.getElementById('nombre').value.trim();
   const capital = parseFloat(document.getElementById('monto').value);
@@ -21,8 +20,8 @@ window.crearPrestamo = function() {
   const fechaIn = document.getElementById('fecha_inicio').value;
 
   if (nombre && capital && cuotas && fechaIn) {
-    const totalADevolver = capital + (capital * (porcentaje / 100));
     const interesMonto = capital * (porcentaje / 100);
+    const totalADevolver = capital + interesMonto;
     const valorCuota = totalADevolver / cuotas;
 
     db.ref('clientes/' + nombre).set({
@@ -37,76 +36,84 @@ window.crearPrestamo = function() {
       pagado: 0,
       fechaInicio: fechaIn
     }).then(() => {
-      alert("¡Perfil de " + nombre + " creado!");
+      alert("Perfil de " + nombre + " guardado.");
       location.reload();
     });
   } else {
-    alert("Por favor completa todos los campos.");
+    alert("Completa todos los campos obligatorios.");
   }
 };
 
-// LISTAR CLIENTES Y CALCULAR TOTALES GENERALES
 db.ref('clientes').on('value', (snapshot) => {
   const lista = document.getElementById('lista-clientes');
-  let capitalAcumulado = 0;
-  let interesAcumulado = 0;
+  let capTotal = 0; let intTotal = 0;
   lista.innerHTML = "";
 
   snapshot.forEach((child) => {
     const c = child.val();
-    
-    // Sumamos para los recuadros de arriba
-    capitalAcumulado += c.capital;
-    interesAcumulado += (c.interesMonto || 0);
+    capTotal += c.capital;
+    intTotal += (c.interesMonto || 0);
 
     const item = document.createElement('div');
     item.className = 'cliente-item';
     item.onclick = () => abrirGlosario(c);
-    item.innerHTML = `<strong>👤 ${c.nombre}</strong><br><small>Falta: $${(c.totalADevolver - c.pagado).toFixed(2)} | Cuota: $${c.cuotaDiaria.toFixed(2)}</small>`;
+    item.innerHTML = `
+      <div><strong>${c.nombre}</strong><br><small>Cuota: $${c.cuotaDiaria.toFixed(0)}</small></div>
+      <div style="text-align:right"><span style="color:#10b981">$${(c.totalADevolver - c.pagado).toFixed(0)}</span><br><small>RESTA</small></div>
+    `;
     lista.appendChild(item);
   });
-
-  // Mostramos los totales en los recuadros
-  document.getElementById('total-capital').innerText = "$" + capitalAcumulado.toLocaleString();
-  document.getElementById('total-interes').innerText = "$" + interesAcumulado.toLocaleString();
+  document.getElementById('total-capital').innerText = "$" + capTotal.toLocaleString();
+  document.getElementById('total-interes').innerText = "$" + intTotal.toLocaleString();
 });
 
-// ABRIR PERFIL / GLOSARIO
 window.abrirGlosario = function(c) {
   clienteActivo = c.nombre;
   document.getElementById('modal-cliente-nombre').innerText = c.nombre;
-  document.getElementById('info-cliente-detalle').innerHTML = `
-    📍 Domicilio: ${c.domicilio}<br>
-    📞 Tel: ${c.telefono}<br>
-    🪪 DNI: ${c.dni}<br>
-    📅 Inicio: ${c.fechaInicio}<br>
-    💰 Préstamo: $${c.capital} + $${c.interesMonto} (Interés)
-  `;
+  
+  const saldoResta = c.totalADevolver - (c.pagado || 0);
+  document.getElementById('saldo-restante').innerText = "$" + saldoResta.toFixed(0);
   document.getElementById('cuota-hoy').innerText = "$" + c.cuotaDiaria.toFixed(2);
+  
+  document.getElementById('info-cliente-detalle').innerHTML = `
+    📍 ${c.domicilio}<br>📞 ${c.telefono}<br>📅 Inicio: ${c.fechaInicio}
+  `;
   document.getElementById('modal-glosario').style.display = "block";
   
   db.ref('historial/' + c.nombre).on('value', (snap) => {
     const h = document.getElementById('historial-pagos');
     h.innerHTML = "";
-    snap.forEach(p => {
-      h.innerHTML += `<li>📅 ${p.val().fecha} - Pagó: $${p.val().monto}</li>`;
-    });
+    let pagosRealizados = {};
+    snap.forEach(p => { pagosRealizados[p.val().fecha] = p.val().monto; });
+
+    let fechaCursor = new Date(c.fechaInicio + "T00:00:00");
+    let hoy = new Date(); hoy.setHours(0,0,0,0);
+    let listaHTML = "";
+
+    while (fechaCursor <= hoy) {
+        let fechaTxt = fechaCursor.toLocaleDateString();
+        if (pagosRealizados[fechaTxt]) {
+            listaHTML += `<li>📅 ${fechaTxt} - Pagó: $${pagosRealizados[fechaTxt]}</li>`;
+        } else {
+            listaHTML += `<li class="pago-faltante">⚠️ ${fechaTxt} - SIN PAGO</li>`;
+        }
+        fechaCursor.setDate(fechaCursor.getDate() + 1);
+    }
+    h.innerHTML = listaHTML;
   });
 };
 
-// REGISTRAR PAGO
 window.registrarPago = function() {
   const monto = parseFloat(document.getElementById('monto-pago').value);
   if (!monto) return;
   const ref = db.ref('clientes/' + clienteActivo);
   ref.once('value').then(s => {
-    const nuevoTotal = (s.val().pagado || 0) + monto;
+    const d = s.val();
+    const nuevoTotal = (d.pagado || 0) + monto;
     ref.update({ pagado: nuevoTotal });
-    db.ref('historial/' + clienteActivo).push({
-      monto: monto,
-      fecha: new Date().toLocaleDateString()
-    });
+    db.ref('historial/' + clienteActivo).push({ monto: monto, fecha: new Date().toLocaleDateString() });
     document.getElementById('monto-pago').value = "";
+    alert("Pago registrado.");
   });
 };
 
@@ -117,5 +124,4 @@ window.eliminarPerfil = function() {
     cerrarModal();
   }
 };
-
 window.cerrarModal = () => { document.getElementById('modal-glosario').style.display = "none"; };
