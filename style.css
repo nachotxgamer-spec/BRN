@@ -1,24 +1,43 @@
-body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; padding: 10px; }
-.app-container { max-width: 450px; margin: auto; }
-
-/* Estilo de las tarjetas de resumen */
+body { 
+    background: #0f172a; 
+    color: white; 
+    font-family: 'Segoe UI', sans-serif; 
+    padding: 15px;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+.app-container { max-width: 100%; margin: auto; }
 .resumen-principal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-.card-resumen { padding: 15px; border-radius: 15px; text-align: center; color: white; }
-.card-resumen span { font-size: 11px; font-weight: bold; opacity: 0.9; }
+.card-resumen { padding: 20px 10px; border-radius: 15px; text-align: center; color: white; }
+.card-resumen span { font-size: 10px; font-weight: bold; }
 .card-resumen h2 { margin: 5px 0 0 0; font-size: 20px; }
 .blue { background: linear-gradient(135deg, #2563eb, #1e40af); }
 .orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.admin-section { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 25px; }
+input { 
+    width: 100%; padding: 16px; margin: 8px 0; border-radius: 10px; border: 1px solid #334155; 
+    background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; 
+}
+.btn-main { width: 100%; padding: 18px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; }
+.cliente-item { 
+    background: #1e293b; padding: 18px; border-radius: 12px; margin-bottom: 12px; border-left: 6px solid #2563eb; 
+    display: flex; justify-content: space-between; align-items: center;
+}
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; }
+.modal-content { background: #1e293b; margin: 5% auto; padding: 25px; width: 85%; border-radius: 20px; max-height: 85vh; overflow-y: auto; }
+.close { float: right; font-size: 35px; color: #94a3b8; }
+.cobro-hoy { background: #1e1b4b; padding: 15px; border-radius: 12px; margin: 20px 0; border: 1px solid #4338ca; text-align: center; }
+.pago-box button { width: 100%; padding: 16px; background: #10b981; border: none; color: white; border-radius: 10px; font-weight: bold; font-size: 16px; }
+.btn-eliminar { width: 100%; padding: 12px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 10px; }
 
-.admin-section { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-input { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-.btn-main { width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.cliente-item { background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #2563eb; cursor: pointer; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10; }
-.modal-content { background: #1e293b; margin: 5% auto; padding: 20px; width: 85%; border-radius: 15px; max-height: 85vh; overflow-y: auto; }
-.close { float: right; font-size: 30px; cursor: pointer; }
-.info-extra { font-size: 14px; color: #94a3b8; line-height: 1.6; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-.cobro-hoy { background: #2d1a1a; padding: 10px; border-radius: 10px; margin: 15px 0; border: 1px solid #ff4d4d; text-align: center; }
-.pago-box button { width: 100%; padding: 12px; background: #10b981; border: none; color: white; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-.btn-eliminar { width: 100%; padding: 12px; background: transparent; border: 2px solid #ff4d4d; color: #ff4d4d; border-radius: 8px; font-weight: bold; cursor: pointer; }
-#historial-pagos { list-style: none; padding: 0; }
-#historial-pagos li { background: #0f172a; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 13px; border-left: 3px solid #10b981; }
+/* DÍAS PAGADOS Y FALTANTES */
+#historial-pagos { list-style: none; padding: 0; margin-top: 15px; }
+#historial-pagos li { 
+    background: #0f172a; padding: 12px; margin-bottom: 8px; border-radius: 8px; 
+    border-left: 4px solid #10b981; font-size: 14px; 
+}
+.pago-faltante { 
+    background: #450a0a !important; 
+    border-left: 4px solid #ef4444 !important; 
+    color: #fca5a5 !important; 
+}
