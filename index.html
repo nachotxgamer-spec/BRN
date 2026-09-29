@@ -1,89 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Préstamos</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Cobranzas y Préstamos</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card-bg: #1e1e1e;
+      --accent: #00e676;
+      --text: #ffffff;
+      --text-dim: #b0b0b0;
+      --border: #333333;
+      --danger: #ff5252;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 15px; max-width: 800px; margin: 0 auto; }
+
+    h1, h2 { text-align: center; margin-bottom: 20px; color: var(--accent); }
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #2a2a2a;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+
+    .client-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-left: 5px solid var(--accent);
+    }
+
+    .client-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .client-name { font-size: 1.2rem; font-weight: bold; }
+    .client-stats { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
+    
+    .btn-pay {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 6px 12px;
+      width: auto;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+    .btn-pay:hover { background: var(--accent); color: #000; }
+  </style>
 </head>
 <body>
 
-<div class="app-container">
-    <h2 style="text-align: center; margin-bottom: 20px;">Hola, IGNACIO o CLAUDIA</h2>
+  <h1>Control de Cobranzas</h1>
 
-    <div class="resumen-principal">
-        <div class="card-resumen blue">
-            <span>CAPITAL INVERTIDO</span>
-            <h2 id="total-capital">$0</h2>
-        </div>
-        <div class="card-resumen orange">
-            <span>GANANCIA ESPERADA</span>
-            <h2 id="total-interes">$0</h2>
-        </div>
-    </div>
+  <!-- FORMULARIO NUEVO PRESTAMO -->
+  <div class="card">
+    <h2>Nuevo Perfil / Préstamo</h2>
+    <form id="loanForm">
+      <div class="form-group">
+        <label>Nombre del Cliente</label>
+        <input type="text" id="clientName" placeholder="Ej: Juan Pérez" required>
+      </div>
+      <div class="form-group">
+        <label>Monto Prestado ($)</label>
+        <input type="number" id="amount" placeholder="100000" required>
+      </div>
+      <div class="form-group">
+        <label>Porcentaje Interés (%)</label>
+        <input type="number" id="interest" placeholder="20" required>
+      </div>
+      <div class="form-group">
+        <label>Cantidad de Cuotas</label>
+        <input type="number" id="installments" placeholder="4" required>
+      </div>
+      <div class="form-group">
+        <label>Frecuencia de Pago</label>
+        <select id="frequency">
+          <option value="Semanal">Semanal</option>
+          <option value="Quincenal">Quincenal</option>
+          <option value="Mensual">Mensual</option>
+        </select>
+      </div>
+      <button type="submit">Guardar Préstamo</button>
+    </form>
+  </div>
 
-    <div class="admin-section">
-        <h3>NUEVO PRÉSTAMO</h3>
-        <input type="text" id="nombre" placeholder="Nombre del Cliente">
-        <input type="text" id="dni" placeholder="DNI (Opcional)">
-        <input type="text" id="domicilio" placeholder="Domicilio">
-        <input type="text" id="telefono" placeholder="Teléfono">
-        <input type="number" id="monto" placeholder="Monto a Prestar ($)">
-        <input type="number" id="interes_porcentaje" placeholder="% Interés (ej: 20)">
-        <input type="number" id="cuotas" placeholder="Cantidad de Días/Cuotas">
-        <input type="date" id="fecha_inicio">
-        <button type="button" class="btn-main" onclick="window.crearPrestamo()">+ GENERAR PERFIL</button>
-    </div>
+  <!-- LISTA DE PERFILES Y COBROS -->
+  <h2>Perfiles Activos</h2>
+  <div id="clientList">Cargando perfiles...</div>
 
-    <h3>LISTA DE COBRANZA</h3>
-    <div id="lista-clientes"></div>
-</div>
-
-<div id="modal-glosario" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal()">&times;</span>
-        <h2 id="modal-cliente-nombre">Nombre</h2>
-        <div id="info-cliente-detalle" class="info-extra"></div>
-        
-        <div class="cobro-hoy">
-            <span>SALDO PENDIENTE ACTUAL:</span>
-            <h2 id="saldo-restante" style="color: #fbbf24; margin-bottom: 10px;">$0</h2>
-            <hr style="border: 0; border-top: 1px solid #4338ca; margin: 10px 0;">
-            <span>COBRO DIARIO SUGERIDO:</span>
-            <h1 id="cuota-hoy" style="font-size: 32px; margin: 0;">$0</h1>
-        </div>
-
-        <div class="pago-box">
-            <input type="number" id="monto-pago" placeholder="Monto que entrega hoy ($)">
-            <button onclick="window.registrarPago()">REGISTRAR PAGO</button>
-        </div>
-
-        <h3 style="margin-top:20px;">Control de Asistencia / Pagos</h3>
-        <ul id="historial-pagos"></ul>
-
-        <button class="btn-eliminar" onclick="window.eliminarPerfil()" style="margin-top:30px;">ELIMINAR ESTE PERFIL</button>
-    </div>
-</div>
-
-<script src="script.js"></script>
+  <!-- FIREBASE LOGIC -->
+  <script type="module" src="app.js"></script>
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>
